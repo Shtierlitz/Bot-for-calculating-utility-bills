@@ -1,2 +1,36 @@
 # Bot-for-calculating-utility-bills
-A Telegram bot for calculating utility bills, as well as for conveniently generating the payment purpose/description message when making a payment.
+
+Простой Telegram-бот для расчёта коммунальных платежей и генерации текста назначения платежа. На данном этапе реализован каркас с минимальными обработчиками, чтобы подключиться к Telegram и протестировать инфраструктуру.
+
+## Быстрый старт (локально)
+
+1. Скопируй `.env.example` в `.env` и подставь токен бота, полученный у `@BotFather` (файл читается автоматически через `python-dotenv`). При желании укажи `BOT_PARSE_MODE`, по умолчанию бот отправляет обычный текст без форматирования.
+2. Создай виртуальное окружение и установи зависимости:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. Запусти бота:
+   ```bash
+   python -m bot.main
+   ```
+
+## Сборка и запуск в Docker
+
+```bash
+docker build -t utility-bot .
+docker run --env-file .env utility-bot
+```
+
+Контейнер ожидает переменные окружения `BOT_TOKEN` (обязательно) и `BOT_PARSE_MODE` (опционально).
+
+## Подключение к Telegram
+
+1. Напиши `@BotFather` и создай нового бота (`/newbot`).
+2. Скопируй выданный токен в `.env` (переменная `BOT_TOKEN`).
+3. Запусти бота локально или в Docker (см. выше) — при успешном запуске в логах появится сообщение `Бот запущен и ожидает сообщения`.
+4. В Telegram найди своего бота по имени, отправь команду `/start` и убедись, что он отвечает приветственным сообщением.
+5. При деплое на Fly.io заранее настрой переменные окружения `BOT_TOKEN` и, при необходимости, `BOT_PARSE_MODE` через `fly secrets set`.
+
+Дальнейшая бизнес-логика расчётов добавляется по мере уточнения требований.
