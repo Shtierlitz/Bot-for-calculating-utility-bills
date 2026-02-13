@@ -1,12 +1,13 @@
-"""Точка входа Telegram-бота."""
+"""Точка входу Telegram-бота на aiogram."""
 from __future__ import annotations
 
+import asyncio
 import logging
 
-from telegram.ext import Application, ApplicationBuilder, CommandHandler, Defaults, MessageHandler, filters
+from aiogram import Bot, Dispatcher
 
 from bot.config import get_settings
-from bot.handlers import handle_plain_text, start
+from bot.handlers import router
 
 logging.basicConfig(
     format='%(asctime)s | %(levelname)s | %(name)s | %(message)s',
@@ -14,21 +15,21 @@ logging.basicConfig(
 )
 
 
-def main() -> None:
+def _build_bot(settings) -> Bot:
+    return Bot(token=settings.bot_token, parse_mode=settings.parse_mode)
 
+
+async def main() -> None:
     settings = get_settings()
-    builder: ApplicationBuilder = Application.builder().token(settings.bot_token)
-
-    if settings.parse_mode:
-        builder = builder.defaults(Defaults(parse_mode=settings.parse_mode))
-
-    application: Application = builder.build()
-    application.add_handler(CommandHandler('start', start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_plain_text))
-
-    logging.info('Бот запущен и ожидает сообщения')
-    application.run_polling()
+    bot = _build_bot(settings)
+    dp = Dispatcher()
+    dp.include_router(router)
+    logging.info('Бот запущений та очікує повідомлення')
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info('Бот зупинено')
