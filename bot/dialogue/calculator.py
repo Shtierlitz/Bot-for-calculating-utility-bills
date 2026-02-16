@@ -102,10 +102,10 @@ class PaymentCalculator:
             sections.append(CalculationSection('Гаряча вода', hot_body, hot_amount, formatter.money(hot_amount)))
 
         rent_body = (
-            '🧱 Квартплата:\n\n'
+            '🧱 Технічне обслуговування будинку:\n\n'
             f"{formatter.quantity(area)} × {formatter.tariff(rent_tariff)} = {formatter.money(rent_amount)} грн"
         )
-        sections.append(CalculationSection('Квартплата', rent_body, rent_amount, formatter.money(rent_amount)))
+        sections.append(CalculationSection('Технічне обслуговування будинку', rent_body, rent_amount, formatter.money(rent_amount)))
 
         if heat_tariff > 0 and area > 0:
             heat_body = (
@@ -129,7 +129,7 @@ class PaymentCalculator:
             '💰 Тарифи:\n'
             f" • Холодна вода: {fmt.tariff(cold_tariff)} грн/м³\n"
             f" • Гаряча вода: {fmt.tariff(hot_tariff)} грн/м³\n"
-            f" • Квартплата: {fmt.tariff(rent_tariff)} грн/м²\n"
+            f" • Технічне обслуговування будинку: {fmt.tariff(rent_tariff)} грн/м²\n"
             f" • Опалення: {fmt.tariff(heat_tariff)} грн/м²\n\n"
             '⸻\n\n'
         )
