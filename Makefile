@@ -5,10 +5,19 @@ CONTAINER_NAME ?= $(PROJECT_NAME)
 ENV_FILE ?= .env
 DOCKER_RUN_FLAGS ?= --rm
 
-.PHONY: help build run up stop logs shell clean
+# Local development (Python version matches the Docker image)
+PYTHON ?= python3.12
+VENV ?= .venv
+VENV_PYTHON := $(VENV)/bin/python
+PYTEST_FLAGS ?= -vv -ra --tb=long --showlocals --log-cli-level=INFO
+PYTEST_ARGS ?=
+
+.PHONY: help venv test build run up stop logs shell clean
 
 help:
 	@echo "Useful targets:"
+	@echo "  make venv           - create $(VENV) with $(PYTHON) and install requirements-dev.txt"
+	@echo "  make test           - run pytest from $(VENV) (extra args: PYTEST_ARGS=\"tests/test_config.py -k name\")"
 	@echo "  make build          - build Docker image ($(IMAGE_NAME))"
 	@echo "  make run            - run container in foreground"
 	@echo "  make up             - run container detached (always-on)"
@@ -16,6 +25,16 @@ help:
 	@echo "  make logs           - follow container logs"
 	@echo "  make shell          - open bash inside running container"
 	@echo "  make clean          - remove container and image"
+
+venv:
+	@command -v $(PYTHON) >/dev/null 2>&1 || { echo "$(PYTHON) not found. Install Python 3.12 or run: make venv PYTHON=/path/to/python3.12"; exit 1; }
+	@test -x $(VENV_PYTHON) || $(PYTHON) -m venv $(VENV)
+	$(VENV_PYTHON) -m pip install --upgrade pip
+	$(VENV_PYTHON) -m pip install -r requirements-dev.txt
+
+test:
+	@test -x $(VENV_PYTHON) || { echo "$(VENV) not found. Run: make venv"; exit 1; }
+	$(VENV_PYTHON) -m pytest $(PYTEST_FLAGS) $(PYTEST_ARGS)
 
 build:
 	docker build -t $(IMAGE_NAME) .

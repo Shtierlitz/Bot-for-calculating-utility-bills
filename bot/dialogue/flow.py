@@ -85,10 +85,10 @@ class PaymentFlow:
         parsed = self._parse_decimal(raw_text)
         if parsed is None:
             return FlowResult(success=False, error='Будь ласка, введіть числове значення (наприклад, 123.45).')
+        if step == constants.SPONSORSHIP_STEP and parsed < 0:
+            return FlowResult(success=False, error='Сума спонсорства не може бути відʼємною. Введіть 0 або додатну суму.')
         self.state.payload[constants.STEP_PAYLOAD_KEYS[step]] = parsed
-        finished = step == constants.AREA_STEP
-        if not finished:
-            finished = not self._advance()
+        finished = not self._advance()
         return FlowResult(success=True, finished=finished)
 
     def _advance(self) -> bool:
@@ -106,9 +106,12 @@ class PaymentFlow:
         if not normalized:
             return None
         try:
-            return Decimal(normalized)
+            value = Decimal(normalized)
         except InvalidOperation:
             return None
+        if not value.is_finite():
+            return None
+        return value
 
 
 __all__ = ['PaymentFlow', 'DialogueState', 'FlowResult']

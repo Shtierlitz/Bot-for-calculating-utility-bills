@@ -9,3 +9,8 @@ __pycache__
 .env.*
 Dockerfile
 README.md
+
+tests
+requirements-dev.txt
+.venv
+.pytest_cache

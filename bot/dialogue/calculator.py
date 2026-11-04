@@ -28,10 +28,12 @@ class PaymentCalculator:
         hot_curr = self.formatter.decimal_for_summary(payload['hot_curr'])
         cold_prev = self.formatter.decimal_for_summary(payload['cold_prev'])
         cold_curr = self.formatter.decimal_for_summary(payload['cold_curr'])
+        sponsorship = self.formatter.decimal_for_summary(Decimal(payload.get('sponsorship_amount', Decimal('0'))))
         return (
             f"Ком.послуги за {month_name} {year}р. {payload['full_name']},{payload['address']};"
             f"ГВП(показники:{hot_prev}-{hot_curr}),"
-            f"ХВП(показники:{cold_prev}-{cold_curr})"
+            f"ХВП(показники:{cold_prev}-{cold_curr}),"
+            f"спонсорство-{sponsorship}"
         )
 
     def details(self, payload: Dict[str, Any]) -> str:
@@ -42,6 +44,7 @@ class PaymentCalculator:
         hot_tariff = payload['hot_tariff']
         rent_tariff = payload['rent_tariff']
         heat_tariff = payload['heat_tariff']
+        sponsorship_amount = Decimal(payload.get('sponsorship_amount', Decimal('0')))
 
         cold_amount = cold_usage * cold_tariff
         hot_amount = hot_usage * hot_tariff
@@ -52,6 +55,8 @@ class PaymentCalculator:
             cold_usage, hot_usage, area, cold_tariff, hot_tariff, rent_tariff, heat_tariff,
             cold_amount, hot_amount, rent_amount, heat_amount,
         )
+        if sponsorship_amount > 0:
+            sections.append(self._build_sponsorship_section(sponsorship_amount))
 
         period = payload['period']
         _, month_locative, year = self.formatter.month_name(period)
@@ -115,6 +120,11 @@ class PaymentCalculator:
             sections.append(CalculationSection('Опалення', heat_body, heat_amount, formatter.money(heat_amount)))
 
         return sections
+
+    def _build_sponsorship_section(self, amount: Decimal) -> CalculationSection:
+        amount_display = self.formatter.money(amount)
+        body = f'🤝 Спонсорство будинку:\n\n{amount_display} грн'
+        return CalculationSection('Спонсорство будинку', body, amount, amount_display)
 
     def _build_tariffs_block(
         self,
