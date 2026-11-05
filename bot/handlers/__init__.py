@@ -9,6 +9,3 @@ from .start import router as start_router
 router = Router()
 router.include_router(start_router)
 router.include_router(messages_router)
-
-
-__all__ = ['router']

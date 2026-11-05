@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
-from typing import Dict
 
 from bot.dialogue.constants import MONTH_NAMES, MONTH_NAMES_LOCATIVE, THREE_DECIMALS, TWO_DECIMALS
+from bot.dialogue.dtos import BillingPeriod
 
 
 class ValueFormatter:
@@ -38,15 +38,15 @@ class ValueFormatter:
         return cls.decimal_fixed(value, TWO_DECIMALS, strip_trailing=False)
 
     @staticmethod
-    def month_name(period: Dict[str, int]) -> tuple[str, str, int]:
-        month = period['month']
-        year = period['year']
+    def month_name(period: BillingPeriod) -> tuple[str, str, int]:
+        month = period.month
+        year = period.year
         return MONTH_NAMES.get(month, ''), MONTH_NAMES_LOCATIVE.get(month, MONTH_NAMES.get(month, '')), year
 
     @staticmethod
-    def period_dates(period: Dict[str, int]) -> tuple[str, str]:
-        month = period['month']
-        year = period['year']
+    def period_dates(period: BillingPeriod) -> tuple[str, str]:
+        month = period.month
+        year = period.year
         prev_month = month - 1
         prev_year = year
         if prev_month == 0:
@@ -55,6 +55,3 @@ class ValueFormatter:
         prev_date = f'01.{prev_month:02d}.{prev_year}'
         current_date = f'01.{month:02d}.{year}'
         return prev_date, current_date
-
-
-__all__ = ['ValueFormatter']

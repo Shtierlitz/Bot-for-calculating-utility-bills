@@ -1,23 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
-from typing import Any, Dict, Optional
+from typing import Optional
 
-from bot.dialogue import constants
-
-
-@dataclass
-class DialogueState:
-    step_index: int = 0
-    payload: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class FlowResult:
-    success: bool
-    error: Optional[str] = None
-    finished: bool = False
+import bot.dialogue.constants as constants
+from bot.dialogue.dtos import BillingPeriod, DialogueState, FlowResult, PaymentDraft
 
 
 class PaymentFlow:
@@ -27,7 +14,7 @@ class PaymentFlow:
         self.state = state or DialogueState()
 
     @property
-    def payload(self) -> Dict[str, Any]:
+    def payload(self) -> PaymentDraft:
         return self.state.payload
 
     @property
@@ -46,8 +33,7 @@ class PaymentFlow:
             return False
         self.state.step_index -= 1
         previous_step = constants.STEP_ORDER[self.state.step_index]
-        payload_key = constants.STEP_PAYLOAD_KEYS[previous_step]
-        self.state.payload.pop(payload_key, None)
+        self._set_step_value(previous_step, None)
         return True
 
     def process(self, text: str) -> FlowResult:
@@ -67,7 +53,7 @@ class PaymentFlow:
     def _store_text(self, step: str, value: str) -> FlowResult:
         if not value:
             return FlowResult(success=False, error='Поле не може бути порожнім.')
-        self.state.payload[constants.STEP_PAYLOAD_KEYS[step]] = value
+        self._set_step_value(step, value)
         finished = not self._advance()
         return FlowResult(success=True, finished=finished)
 
@@ -77,7 +63,7 @@ class PaymentFlow:
         if not match:
             return FlowResult(success=False, error='Не впізнаю формат. Використайте MM-YYYY, наприклад 01-2026.')
         month, year = int(match.group(1)), int(match.group(2))
-        self.state.payload['period'] = {'month': month, 'year': year}
+        self._set_step_value(constants.PERIOD_STEP, BillingPeriod(month=month, year=year))
         finished = not self._advance()
         return FlowResult(success=True, finished=finished)
 
@@ -87,7 +73,7 @@ class PaymentFlow:
             return FlowResult(success=False, error='Будь ласка, введіть числове значення (наприклад, 123.45).')
         if step == constants.SPONSORSHIP_STEP and parsed < 0:
             return FlowResult(success=False, error='Сума спонсорства не може бути відʼємною. Введіть 0 або додатну суму.')
-        self.state.payload[constants.STEP_PAYLOAD_KEYS[step]] = parsed
+        self._set_step_value(step, parsed)
         finished = not self._advance()
         return FlowResult(success=True, finished=finished)
 
@@ -96,6 +82,12 @@ class PaymentFlow:
             return False
         self.state.step_index += 1
         return True
+
+    def _set_step_value(self, step: str, value: object) -> None:
+        field_name = constants.STEP_PAYLOAD_KEYS.get(step)
+        if field_name is None or field_name not in PaymentDraft.__dataclass_fields__:
+            raise RuntimeError(f'Unknown payment draft field for step: {step}')
+        setattr(self.state.payload, field_name, value)
 
     @staticmethod
     def _parse_decimal(raw_text: str) -> Optional[Decimal]:
@@ -114,4 +106,14 @@ class PaymentFlow:
         return value
 
 
-__all__ = ['PaymentFlow', 'DialogueState', 'FlowResult']
+def is_back_command(text: str) -> bool:
+    normalized = text.strip().lower()
+    if not normalized:
+        return False
+    normalized = normalized.rstrip('.,!')
+    if normalized.startswith('/'):
+        normalized = normalized[1:]
+    if normalized in constants.BACK_TOKENS:
+        return True
+    first_token = normalized.split()[0]
+    return first_token in constants.BACK_TOKENS
