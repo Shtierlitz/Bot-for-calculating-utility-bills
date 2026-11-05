@@ -6,7 +6,6 @@ import pytest
 from bot.dialogue.services.calculator import PaymentCalculator
 from tests.dtos import PaymentDetailsDTO
 
-
 # Холодна 5 × 30.384 = 151.92, гаряча 2 × 100 = 200, обслуговування 50 × 8 = 400.
 BASE_TOTAL = '751.92'
 

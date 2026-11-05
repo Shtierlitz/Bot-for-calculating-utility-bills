@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
 
-from bot.dialogue.constants import MONTH_NAMES, MONTH_NAMES_LOCATIVE, THREE_DECIMALS, TWO_DECIMALS
+from bot.dialogue.constants import (
+    MONTH_NAMES,
+    MONTH_NAMES_LOCATIVE,
+    THREE_DECIMALS,
+    TWO_DECIMALS,
+)
 from bot.dialogue.dtos import BillingPeriod
 
 

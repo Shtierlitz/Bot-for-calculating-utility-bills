@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from decimal import Decimal
 import re
-
+from decimal import Decimal
 
 FULL_NAME_STEP = 'full_name'
 PERIOD_STEP = 'period'

@@ -9,7 +9,6 @@ from bot.dialogue.services.payment import PaymentService
 from bot.dialogue.states import Form
 from bot.ui.keyboards import back_keyboard
 
-
 router = Router()
 payment_service = PaymentService()
 
