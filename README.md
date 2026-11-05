@@ -51,7 +51,7 @@ Pre-commit hook только проверяет Python-код через Ruff. �
 
 ### Continuous Integration
 
-GitHub Actions проверяет Ruff и запускает pytest на Python 3.12. CI запускается для pull request в `main`, push в `main` и вручную через `workflow_dispatch`. Секреты, включая `BOT_TOKEN`, для этих проверок не требуются.
+GitHub Actions проверяет Ruff и запускает pytest на Python 3.12. CI запускается для push в любую ветку, для любого pull request и вручную через `workflow_dispatch`. Секреты, включая `BOT_TOKEN`, для этих проверок не требуются.
 
 ## Сборка и запуск в Docker
 
