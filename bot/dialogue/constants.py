@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from decimal import Decimal
 import re
-
+from decimal import Decimal
 
 FULL_NAME_STEP = 'full_name'
 PERIOD_STEP = 'period'
@@ -16,6 +15,7 @@ HOT_TARIFF_STEP = 'hot_tariff'
 RENT_TARIFF_STEP = 'rent_tariff'
 HEAT_TARIFF_STEP = 'heat_tariff'
 AREA_STEP = 'apartment_area'
+SPONSORSHIP_STEP = 'sponsorship_amount'
 
 STEP_ORDER = [
     FULL_NAME_STEP,
@@ -30,6 +30,7 @@ STEP_ORDER = [
     RENT_TARIFF_STEP,
     HEAT_TARIFF_STEP,
     AREA_STEP,
+    SPONSORSHIP_STEP,
 ]
 
 STEP_PROMPTS = {
@@ -45,6 +46,7 @@ STEP_PROMPTS = {
     RENT_TARIFF_STEP: 'Вкажіть тариф технічного обслуговування будинку (грн/м²), наприклад 8.',
     HEAT_TARIFF_STEP: 'Вкажіть тариф опалення (грн/м²). Якщо опалення відсутнє, введіть 0.',
     AREA_STEP: 'Вкажіть площу квартири (м²), наприклад 68.1. Якщо технічне обслуговування будинку не потрібне, введіть 0.',
+    SPONSORSHIP_STEP: 'Чи є побажання внести додаткові кошти в якості спонсорства будинку? Введіть суму. Якщо бажання нема, то введіть 0.',
 }
 
 STEP_PAYLOAD_KEYS = {
@@ -60,6 +62,7 @@ STEP_PAYLOAD_KEYS = {
     RENT_TARIFF_STEP: 'rent_tariff',
     HEAT_TARIFF_STEP: 'heat_tariff',
     AREA_STEP: 'apartment_area',
+    SPONSORSHIP_STEP: 'sponsorship_amount',
 }
 
 PERIOD_PATTERN = re.compile(r'^(0[1-9]|1[0-2])-(\d{4,5})$')
@@ -111,31 +114,5 @@ NUMERIC_STEPS = {
     RENT_TARIFF_STEP,
     HEAT_TARIFF_STEP,
     AREA_STEP,
+    SPONSORSHIP_STEP,
 }
-
-__all__ = [
-    'FULL_NAME_STEP',
-    'PERIOD_STEP',
-    'ADDRESS_STEP',
-    'HOT_PREV_STEP',
-    'HOT_CURR_STEP',
-    'COLD_PREV_STEP',
-    'COLD_CURR_STEP',
-    'COLD_TARIFF_STEP',
-    'HOT_TARIFF_STEP',
-    'RENT_TARIFF_STEP',
-    'HEAT_TARIFF_STEP',
-    'AREA_STEP',
-    'STEP_ORDER',
-    'STEP_PROMPTS',
-    'STEP_PAYLOAD_KEYS',
-    'PERIOD_PATTERN',
-    'MONTH_NAMES',
-    'MONTH_NAMES_LOCATIVE',
-    'BACK_BUTTON_TEXT',
-    'BACK_TOKENS',
-    'THREE_DECIMALS',
-    'TWO_DECIMALS',
-    'TEXT_STEPS',
-    'NUMERIC_STEPS',
-]

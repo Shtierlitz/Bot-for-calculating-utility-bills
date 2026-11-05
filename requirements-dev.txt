@@ -1,0 +1,6 @@
+# Development and test dependencies. Not installed into the Docker image.
+-r requirements.txt
+
+pytest==8.3.5
+pre-commit==4.7.0
+ruff==0.17.3

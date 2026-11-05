@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Dict, List
+from typing import List
 
-from bot.dialogue.formatting import ValueFormatter
+from bot.dialogue.dtos import PaymentDetails
+from bot.dialogue.services.formatting import ValueFormatter
 
 
 @dataclass
@@ -21,27 +22,29 @@ class PaymentCalculator:
     def __init__(self, formatter: ValueFormatter | None = None) -> None:
         self.formatter = formatter or ValueFormatter()
 
-    def summary(self, payload: Dict[str, Any]) -> str:
-        period = payload['period']
-        month_name, _, year = self.formatter.month_name(period)
-        hot_prev = self.formatter.decimal_for_summary(payload['hot_prev'])
-        hot_curr = self.formatter.decimal_for_summary(payload['hot_curr'])
-        cold_prev = self.formatter.decimal_for_summary(payload['cold_prev'])
-        cold_curr = self.formatter.decimal_for_summary(payload['cold_curr'])
+    def summary(self, payload: PaymentDetails) -> str:
+        month_name, _, year = self.formatter.month_name(payload.period)
+        hot_prev = self.formatter.decimal_for_summary(payload.hot_prev)
+        hot_curr = self.formatter.decimal_for_summary(payload.hot_curr)
+        cold_prev = self.formatter.decimal_for_summary(payload.cold_prev)
+        cold_curr = self.formatter.decimal_for_summary(payload.cold_curr)
+        sponsorship = self.formatter.decimal_for_summary(payload.sponsorship_amount)
         return (
-            f"Ком.послуги за {month_name} {year}р. {payload['full_name']},{payload['address']};"
+            f"Ком.послуги за {month_name} {year}р. {payload.full_name},{payload.address};"
             f"ГВП(показники:{hot_prev}-{hot_curr}),"
-            f"ХВП(показники:{cold_prev}-{cold_curr})"
+            f"ХВП(показники:{cold_prev}-{cold_curr}),"
+            f"спонсорство-{sponsorship}"
         )
 
-    def details(self, payload: Dict[str, Any]) -> str:
-        cold_usage = payload['cold_curr'] - payload['cold_prev']
-        hot_usage = payload['hot_curr'] - payload['hot_prev']
-        area = payload['apartment_area']
-        cold_tariff = payload['cold_tariff']
-        hot_tariff = payload['hot_tariff']
-        rent_tariff = payload['rent_tariff']
-        heat_tariff = payload['heat_tariff']
+    def details(self, payload: PaymentDetails) -> str:
+        cold_usage = payload.cold_curr - payload.cold_prev
+        hot_usage = payload.hot_curr - payload.hot_prev
+        area = payload.apartment_area
+        cold_tariff = payload.cold_tariff
+        hot_tariff = payload.hot_tariff
+        rent_tariff = payload.rent_tariff
+        heat_tariff = payload.heat_tariff
+        sponsorship_amount = payload.sponsorship_amount
 
         cold_amount = cold_usage * cold_tariff
         hot_amount = hot_usage * hot_tariff
@@ -52,9 +55,10 @@ class PaymentCalculator:
             cold_usage, hot_usage, area, cold_tariff, hot_tariff, rent_tariff, heat_tariff,
             cold_amount, hot_amount, rent_amount, heat_amount,
         )
+        if sponsorship_amount > 0:
+            sections.append(self._build_sponsorship_section(sponsorship_amount))
 
-        period = payload['period']
-        _, month_locative, year = self.formatter.month_name(period)
+        _, month_locative, year = self.formatter.month_name(payload.period)
         readings_block = self._build_readings_block(payload, cold_usage, hot_usage)
         tariffs_block = self._build_tariffs_block(cold_tariff, hot_tariff, rent_tariff, heat_tariff)
 
@@ -116,6 +120,11 @@ class PaymentCalculator:
 
         return sections
 
+    def _build_sponsorship_section(self, amount: Decimal) -> CalculationSection:
+        amount_display = self.formatter.money(amount)
+        body = f'🤝 Спонсорство будинку:\n\n{amount_display} грн'
+        return CalculationSection('Спонсорство будинку', body, amount, amount_display)
+
     def _build_tariffs_block(
         self,
         cold_tariff: Decimal,
@@ -134,14 +143,13 @@ class PaymentCalculator:
             '⸻\n\n'
         )
 
-    def _build_readings_block(self, payload: Dict[str, Any], cold_usage: Decimal, hot_usage: Decimal) -> str:
+    def _build_readings_block(self, payload: PaymentDetails, cold_usage: Decimal, hot_usage: Decimal) -> str:
         fmt = self.formatter
-        period = payload['period']
-        prev_date, current_date = fmt.period_dates(period)
-        cold_prev = fmt.decimal_for_summary(payload['cold_prev'])
-        cold_curr = fmt.decimal_for_summary(payload['cold_curr'])
-        hot_prev = fmt.decimal_for_summary(payload['hot_prev'])
-        hot_curr = fmt.decimal_for_summary(payload['hot_curr'])
+        prev_date, current_date = fmt.period_dates(payload.period)
+        cold_prev = fmt.decimal_for_summary(payload.cold_prev)
+        cold_curr = fmt.decimal_for_summary(payload.cold_curr)
+        hot_prev = fmt.decimal_for_summary(payload.hot_prev)
+        hot_curr = fmt.decimal_for_summary(payload.hot_curr)
         return (
             '🔁 Повтор розрахунків:\n\n'
             '📸 Показники (м³):\n'
@@ -149,6 +157,3 @@ class PaymentCalculator:
             f'Холодна — {cold_prev} — {cold_curr} — {fmt.quantity(cold_usage)} м³\n'
             f'Гаряча — {hot_prev} — {hot_curr} — {fmt.quantity(hot_usage)} м³\n\n'
         )
-
-
-__all__ = ['PaymentCalculator']

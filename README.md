@@ -2,19 +2,56 @@
 
 Простой Telegram-бот для расчёта коммунальных платежей и генерации текста назначения платежа. На данном этапе реализован каркас с минимальными обработчиками, чтобы подключиться к Telegram и протестировать инфраструктуру.
 
+После ввода площади квартиры бот спрашивает о добровольном спонсорском взносе на нужды дома: положительная сумма выводится отдельной строкой «Спонсорство будинку» и добавляется к итогу, `0` означает отказ от взноса. В конце короткого назначения платежа всегда указывается `спонсорство:<сумма>` (например, `спонсорство:150,5` или `спонсорство:0`).
+
 ## Быстрый старт (локально)
 
 1. Скопируй `.env.example` в `.env` и подставь токен бота, полученный у `@BotFather` (файл читается автоматически через `python-dotenv`). При желании укажи `BOT_PARSE_MODE`, по умолчанию бот отправляет обычный текст без форматирования.
-2. Создай виртуальное окружение и установи зависимости:
+2. Установи Python 3.12 (та же версия, что в Docker-образе) и создай окружение с runtime- и dev-зависимостями одной командой:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
+   make venv
    ```
+   Если `python3.12` не в `PATH`, укажи путь явно: `make venv PYTHON=/path/to/python3.12`. Активировать окружение вручную не нужно — команды `make` используют `.venv/bin/python`.
 3. Запусти бота:
    ```bash
-   python -m bot.main
+   .venv/bin/python -m bot.main
    ```
+
+### PyCharm
+
+1. `Settings → Project → Python Interpreter → Add Interpreter → Add Local Interpreter → Existing` и выбери `<корень проекта>/.venv/bin/python`.
+2. В Run Configuration для модуля `bot.main` укажи корень проекта как Working directory (тогда `.env` подхватится автоматически).
+
+### Тесты
+
+```bash
+make test                                                  # вся сюита
+make test PYTEST_ARGS="tests/test_config.py"               # один файл
+make test PYTEST_ARGS="tests/test_config.py -k missing_token"  # отдельный тест
+```
+
+Тесты запускаются через `.venv/bin/python -m pytest` и не требуют Telegram-токена, сети или Docker. При падении pytest выводит live-логи уровня `INFO`, полный traceback и значения локальных переменных. Dev-зависимости (`requirements-dev.txt`) в Docker-образ не устанавливаются.
+
+### Статическая проверка
+
+Запустить Ruff вручную:
+
+```bash
+make lint
+```
+
+После `make venv` можно один раз установить git hook и при необходимости вручную проверить все файлы:
+
+```bash
+make pre-commit-install
+make pre-commit
+```
+
+Pre-commit hook только проверяет Python-код через Ruff. Он не форматирует и не исправляет файлы автоматически, а блокирует коммит до ручного устранения найденных ошибок.
+
+### Continuous Integration
+
+GitHub Actions проверяет Ruff и запускает pytest на Python 3.12. CI запускается для push в любую ветку, для любого pull request и вручную через `workflow_dispatch`. Секреты, включая `BOT_TOKEN`, для этих проверок не требуются.
 
 ## Сборка и запуск в Docker
 
