@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from decimal import Decimal
 import re
-
+from decimal import Decimal
 
 FULL_NAME_STEP = 'full_name'
 PERIOD_STEP = 'period'
@@ -117,31 +116,3 @@ NUMERIC_STEPS = {
     AREA_STEP,
     SPONSORSHIP_STEP,
 }
-
-__all__ = [
-    'FULL_NAME_STEP',
-    'PERIOD_STEP',
-    'ADDRESS_STEP',
-    'HOT_PREV_STEP',
-    'HOT_CURR_STEP',
-    'COLD_PREV_STEP',
-    'COLD_CURR_STEP',
-    'COLD_TARIFF_STEP',
-    'HOT_TARIFF_STEP',
-    'RENT_TARIFF_STEP',
-    'HEAT_TARIFF_STEP',
-    'AREA_STEP',
-    'SPONSORSHIP_STEP',
-    'STEP_ORDER',
-    'STEP_PROMPTS',
-    'STEP_PAYLOAD_KEYS',
-    'PERIOD_PATTERN',
-    'MONTH_NAMES',
-    'MONTH_NAMES_LOCATIVE',
-    'BACK_BUTTON_TEXT',
-    'BACK_TOKENS',
-    'THREE_DECIMALS',
-    'TWO_DECIMALS',
-    'TEXT_STEPS',
-    'NUMERIC_STEPS',
-]

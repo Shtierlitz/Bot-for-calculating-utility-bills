@@ -32,6 +32,27 @@ make test PYTEST_ARGS="tests/test_config.py -k missing_token"  # отдельн�
 
 Тесты запускаются через `.venv/bin/python -m pytest` и не требуют Telegram-токена, сети или Docker. При падении pytest выводит live-логи уровня `INFO`, полный traceback и значения локальных переменных. Dev-зависимости (`requirements-dev.txt`) в Docker-образ не устанавливаются.
 
+### Статическая проверка
+
+Запустить Ruff вручную:
+
+```bash
+make lint
+```
+
+После `make venv` можно один раз установить git hook и при необходимости вручную проверить все файлы:
+
+```bash
+make pre-commit-install
+make pre-commit
+```
+
+Pre-commit hook только проверяет Python-код через Ruff. Он не форматирует и не исправляет файлы автоматически, а блокирует коммит до ручного устранения найденных ошибок.
+
+### Continuous Integration
+
+GitHub Actions проверяет Ruff и запускает pytest на Python 3.12. CI запускается для push в любую ветку, для любого pull request и вручную через `workflow_dispatch`. Секреты, включая `BOT_TOKEN`, для этих проверок не требуются.
+
 ## Сборка и запуск в Docker
 
 ```bash
