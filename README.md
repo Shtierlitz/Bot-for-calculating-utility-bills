@@ -49,6 +49,10 @@ make pre-commit
 
 Pre-commit hook только проверяет Python-код через Ruff. Он не форматирует и не исправляет файлы автоматически, а блокирует коммит до ручного устранения найденных ошибок.
 
+### Continuous Integration
+
+GitHub Actions проверяет Ruff и запускает pytest на Python 3.12. CI запускается для pull request в `main`, push в `main` и вручную через `workflow_dispatch`. Секреты, включая `BOT_TOKEN`, для этих проверок не требуются.
+
 ## Сборка и запуск в Docker
 
 ```bash
