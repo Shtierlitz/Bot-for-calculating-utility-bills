@@ -73,3 +73,11 @@ class PaymentServiceResult:
     details_message: str | None = None
     summary_message: str | None = None
     completion_message: str | None = None
+
+
+@dataclass
+class CalculationSection:
+    label: str
+    body: str
+    amount: Decimal
+    amount_display: str

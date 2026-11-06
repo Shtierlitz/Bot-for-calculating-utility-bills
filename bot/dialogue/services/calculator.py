@@ -1,19 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from decimal import Decimal
 from typing import List
 
-from bot.dialogue.dtos import PaymentDetails
+from bot.dialogue.dtos import (
+    CalculationSection,
+    PaymentDetails,
+)
 from bot.dialogue.services.formatting import ValueFormatter
-
-
-@dataclass
-class CalculationSection:
-    label: str
-    body: str
-    amount: Decimal
-    amount_display: str
 
 
 class PaymentCalculator:
@@ -109,7 +103,8 @@ class PaymentCalculator:
             '🧱 Технічне обслуговування будинку:\n\n'
             f"{formatter.quantity(area)} × {formatter.tariff(rent_tariff)} = {formatter.money(rent_amount)} грн"
         )
-        sections.append(CalculationSection('Технічне обслуговування будинку', rent_body, rent_amount, formatter.money(rent_amount)))
+        sections.append(
+            CalculationSection('Технічне обслуговування будинку', rent_body, rent_amount, formatter.money(rent_amount)))
 
         if heat_tariff > 0 and area > 0:
             heat_body = (

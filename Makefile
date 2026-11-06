@@ -12,7 +12,7 @@ VENV_PYTHON := $(VENV)/bin/python
 PYTEST_FLAGS ?= -vv -ra --tb=long --showlocals --log-cli-level=INFO
 PYTEST_ARGS ?=
 
-.PHONY: help venv test lint pre-commit pre-commit-install build run up stop restart logs shell clean
+.PHONY: help venv test lint pre-commit pre-commit-fix pre-commit-install build run up stop restart logs shell clean
 
 help:
 	@echo "Useful targets:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make test           - run pytest from $(VENV) (extra args: PYTEST_ARGS=\"tests/test_config.py -k name\")"
 	@echo "  make lint           - run Ruff checks for bot and tests"
 	@echo "  make pre-commit     - run all pre-commit hooks for the repository"
+	@echo "  make pre-commit-fix - apply Ruff auto-fixes to bot and tests"
 	@echo "  make pre-commit-install - install the pre-commit git hook"
 	@echo "  make build          - build Docker image ($(IMAGE_NAME))"
 	@echo "  make run            - run container in foreground"
@@ -47,6 +48,10 @@ lint:
 pre-commit:
 	@test -x $(VENV_PYTHON) || { echo "$(VENV) not found. Run: make venv"; exit 1; }
 	$(VENV_PYTHON) -m pre_commit run --all-files
+
+ruff-check-fix:
+	@test -x $(VENV_PYTHON) || { echo "$(VENV) not found. Run: make venv"; exit 1; }
+	$(VENV_PYTHON) -m ruff check --fix bot tests
 
 pre-commit-install:
 	@test -x $(VENV_PYTHON) || { echo "$(VENV) not found. Run: make venv"; exit 1; }
