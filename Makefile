@@ -12,7 +12,7 @@ VENV_PYTHON := $(VENV)/bin/python
 PYTEST_FLAGS ?= -vv -ra --tb=long --showlocals --log-cli-level=INFO
 PYTEST_ARGS ?=
 
-.PHONY: help venv test lint pre-commit pre-commit-install build run up stop logs shell clean
+.PHONY: help venv test lint pre-commit pre-commit-install build run up stop restart logs shell clean
 
 help:
 	@echo "Useful targets:"
@@ -25,6 +25,7 @@ help:
 	@echo "  make run            - run container in foreground"
 	@echo "  make up             - run container detached (always-on)"
 	@echo "  make stop           - stop running container"
+	@echo "  make restart        - restart running container"
 	@echo "  make logs           - follow container logs"
 	@echo "  make shell          - open bash inside running container"
 	@echo "  make clean          - remove container and image"
@@ -62,6 +63,9 @@ up: build
 
 stop:
 	docker stop $(CONTAINER_NAME) || true
+
+restart:
+	docker restart $(CONTAINER_NAME)
 
 logs:
 	docker logs -f $(CONTAINER_NAME)

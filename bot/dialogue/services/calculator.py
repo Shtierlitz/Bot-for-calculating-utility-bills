@@ -153,7 +153,7 @@ class PaymentCalculator:
         return (
             '🔁 Повтор розрахунків:\n\n'
             '📸 Показники (м³):\n'
-            f'Вода — {prev_date} — {current_date} — Розхід\n'
-            f'Холодна — {cold_prev} — {cold_curr} — {fmt.quantity(cold_usage)} м³\n'
-            f'Гаряча — {hot_prev} — {hot_curr} — {fmt.quantity(hot_usage)} м³\n\n'
+            f'Вода: {current_date} - {prev_date} = Розхід\n'
+            f'Холодна:  {cold_curr} - {cold_prev} = {fmt.quantity(cold_usage)} м³\n'
+            f'Гаряча:  {hot_curr} - {hot_prev} = {fmt.quantity(hot_usage)} м³\n\n'
         )
